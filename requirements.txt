@@ -1,5 +1,5 @@
 pandas>=0.19
 matplotlib>=1.4.3
 seaborn>=0.8.0
-os
+os>=3.2
 streamlit
