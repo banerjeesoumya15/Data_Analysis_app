@@ -8,11 +8,13 @@ Created on Sun Jan 31 13:18:33 2021
 # import packages
 import streamlit as st
 import pandas as pd
+#import numpy as np
 import seaborn as sns
 from matplotlib import pyplot as plt
 import os
 #import time
 
+@st.cache(suppress_st_warning=True)
 def file_selector(path='./datasets'):
     '''
     Selects a file present in the path folder.
@@ -101,8 +103,9 @@ def main():
     st.subheader("Visualisation")
     # Correlation plot
     with st.beta_expander("Correlation - heatmap"):
+        selected_columns = st.multiselect("Columns to be displayed", columns, default=columns[:3])
         fig, ax = plt.subplots()
-        sns.heatmap(df.corr(), annot=True)
+        sns.heatmap(df[selected_columns].corr(), annot=True)
         st.pyplot(fig)
         
     # Generate pie plot
@@ -123,9 +126,9 @@ def main():
             
     with st.beta_expander("Customisable plots"):
         type_of_plot = st.selectbox("Select type of plot", ['area','bar','line','hist','box','kde'])
-        selected_columns = st.multiselect("Columns to be displayed", columns, default=columns[0], key='custom plot')
+        selected_columns = st.selectbox("Column to be displayed", columns, key='custom plot')
         
-        if st.button("Geenerate {} plot".format(type_of_plot)):
+        if st.button("Generate plot"):
             
             if type_of_plot == 'area':
                 st.area_chart(df[selected_columns])
@@ -137,8 +140,9 @@ def main():
                 st.line_chart(df[selected_columns])
                 
             elif type_of_plot:
-                st.write(df[selected_columns].plot(kind=type_of_plot))
-                #st.pyplot()
+                fig, ax = plt.subplots()
+                df[selected_columns].plot(kind=type_of_plot)
+                st.pyplot(fig)
                 
     st.markdown("-----------")
     if st.button("Thanks"):
