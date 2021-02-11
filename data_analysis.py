@@ -50,99 +50,101 @@ def main():
     st.subheader('Using streamlit')
     
     # select file
-    full_filename = file_selector()
-    st.success("You selected \{}".format(full_filename[2:]))
+    ffile = st.file_uploader("Select a csv file", type='csv')
+    #full_filename = file_selector()
+    #st.success("You selected \{}".format(full_filename[2:]))
     #st.markdown("> You selected \{}".format(full_filename[2:]))
     
     # Read data
-    df = pd.read_csv(full_filename)
-    
-    # get list of columns
-    columns = list(df.columns)
-    
-    # Show dataset
-    with st.beta_expander("Show Dataset"):
-        # number input
-        no_of_rows = st.number_input("No. of rows to display", 1, len(df))
-        select_column = st.multiselect("Select columns", columns, default=columns[:3])
-        st.dataframe(df[select_column].head(no_of_rows))
+    if ffile:
+        df = pd.read_csv(ffile)
         
-        st.success("Shape of the original dataset is {} rows and {} columns".format(df.shape[0], df.shape[1]))
+        # get list of columns
+        columns = list(df.columns)
         
-    # Show no. of missing values
-    def highlight_positive(s):
-        '''
-        Define function to highlight positive values
-
-        '''
-        is_zero = s!=0
-        return ['background-color: yellow' if v else '' for v in is_zero]
-        
-    with st.beta_expander("Show number of missing values"):
-        #st.write(df.isna().sum())
-        df_missing_vals = pd.DataFrame(df.isna().sum())
-        st.dataframe(df_missing_vals.style.apply(highlight_positive))
-    
-    # Show datatypes
-    with st.beta_expander("Show datatypes"):
-        st.write(df.dtypes)
-        
-    # Show value counts
-    with st.beta_expander("Show unique value counts"):
-        #st.markdown("#### Select a column")
-        select_column = st.selectbox("Select a column", columns)
-        st.write(df.loc[:, select_column].value_counts())
-        
-    # Show summary
-    with st.beta_expander("Show Summary"):
-        st.write(df.describe())
-        
-        
-    st.markdown("----------")
-    # Visualisation
-    st.subheader("Visualisation")
-    # Correlation plot
-    with st.beta_expander("Correlation - heatmap"):
-        selected_columns = st.multiselect("Columns to be displayed", columns, default=columns[:3])
-        fig, ax = plt.subplots()
-        sns.heatmap(df[selected_columns].corr(), annot=True)
-        st.pyplot(fig)
-        
-    # Generate pie plot
-    with st.beta_expander("Pie plot"):
-        column = st.selectbox("Select a column", columns, key="Pie plot")
-        fig, ax = plt.subplots()
-        df.loc[:,column].value_counts().plot.pie(autopct="%1.1f%%")
-        st.pyplot(fig)
-        
-    # Generate count plot
-    with st.beta_expander("Count plot"):
-        group_by_column = st.selectbox("Select a column to group by", columns)
-        selected_columns = st.multiselect("Columns to be displayed", columns, default=columns[0])
-        if st.button("Plot"):
-            count_plot = df.groupby(group_by_column)[selected_columns].count()
-            st.dataframe(count_plot)
-            st.bar_chart(count_plot)
+        # Show dataset
+        with st.beta_expander("Show Dataset"):
+            # number input
+            no_of_rows = st.number_input("No. of rows to display", 1, len(df))
+            select_column = st.multiselect("Select columns", columns, default=columns[:3])
+            st.dataframe(df[select_column].head(no_of_rows))
             
-    with st.beta_expander("Customisable plots"):
-        type_of_plot = st.selectbox("Select type of plot", ['area','bar','line','hist','box','kde'])
-        selected_columns = st.selectbox("Column to be displayed", columns, key='custom plot')
-        
-        if st.button("Generate plot"):
+            st.success("Shape of the original dataset is {} rows and {} columns".format(df.shape[0], df.shape[1]))
             
-            if type_of_plot == 'area':
-                st.area_chart(df[selected_columns])
+        # Show no. of missing values
+        def highlight_positive(s):
+            '''
+            Define function to highlight positive values
+    
+            '''
+            is_zero = s!=0
+            return ['background-color: yellow' if v else '' for v in is_zero]
+            
+        with st.beta_expander("Show number of missing values"):
+            #st.write(df.isna().sum())
+            df_missing_vals = pd.DataFrame(df.isna().sum())
+            st.dataframe(df_missing_vals.style.apply(highlight_positive))
+        
+        # Show datatypes
+        with st.beta_expander("Show datatypes"):
+            st.write(df.dtypes)
+            
+        # Show value counts
+        with st.beta_expander("Show unique value counts"):
+            #st.markdown("#### Select a column")
+            select_column = st.selectbox("Select a column", columns)
+            st.write(df.loc[:, select_column].value_counts())
+            
+        # Show summary
+        with st.beta_expander("Show Summary"):
+            st.write(df.describe())
+            
+            
+        st.markdown("----------")
+        # Visualisation
+        st.subheader("Visualisation")
+        # Correlation plot
+        with st.beta_expander("Correlation - heatmap"):
+            selected_columns = st.multiselect("Columns to be displayed", columns, default=columns[:3])
+            fig, ax = plt.subplots()
+            sns.heatmap(df[selected_columns].corr(), annot=True)
+            st.pyplot(fig)
+            
+        # Generate pie plot
+        with st.beta_expander("Pie plot"):
+            column = st.selectbox("Select a column", columns, key="Pie plot")
+            fig, ax = plt.subplots()
+            df.loc[:,column].value_counts().plot.pie(autopct="%1.1f%%")
+            st.pyplot(fig)
+            
+        # Generate count plot
+        with st.beta_expander("Count plot"):
+            group_by_column = st.selectbox("Select a column to group by", columns)
+            selected_columns = st.multiselect("Columns to be displayed", columns, default=columns[0])
+            if st.button("Plot"):
+                count_plot = df.groupby(group_by_column)[selected_columns].count()
+                st.dataframe(count_plot)
+                st.bar_chart(count_plot)
                 
-            elif type_of_plot == 'bar':
-                st.bar_chart(df[selected_columns])
+        with st.beta_expander("Customisable plots"):
+            type_of_plot = st.selectbox("Select type of plot", ['area','bar','line','hist','box','kde'])
+            selected_columns = st.selectbox("Column to be displayed", columns, key='custom plot')
+            
+            if st.button("Generate plot"):
                 
-            elif type_of_plot == 'line':
-                st.line_chart(df[selected_columns])
-                
-            elif type_of_plot:
-                fig, ax = plt.subplots()
-                df[selected_columns].plot(kind=type_of_plot)
-                st.pyplot(fig)
+                if type_of_plot == 'area':
+                    st.area_chart(df[selected_columns])
+                    
+                elif type_of_plot == 'bar':
+                    st.bar_chart(df[selected_columns])
+                    
+                elif type_of_plot == 'line':
+                    st.line_chart(df[selected_columns])
+                    
+                elif type_of_plot:
+                    fig, ax = plt.subplots()
+                    df[selected_columns].plot(kind=type_of_plot)
+                    st.pyplot(fig)
                 
     st.markdown("-----------")
     if st.button("Thanks"):
@@ -163,8 +165,9 @@ def main():
     
     st.sidebar.text("")
     st.sidebar.text("")
-    st.sidebar.markdown("Built by Soumya")
-    st.sidebar.markdown("e-mail: banerjeesoumya15@gmail.com")
+    st.sidebar.markdown("### Built by Soumya")
+    st.sidebar.markdown("e-mail:<br>banerjeesoumya15@gmail.com", True)
+    st.sidebar.markdown("Github link: [https://github.com/banerjeesoumya15/Data_Analysis_app](https://github.com/banerjeesoumya15/Data_Analysis_app)", True)
         
 
 if __name__=='__main__':
