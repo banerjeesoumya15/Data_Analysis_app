@@ -14,8 +14,8 @@ from matplotlib import pyplot as plt
 import os
 #import time
 
-@st.cache(suppress_st_warning=True)
-def file_selector(path='./datasets'):
+#@st.cache(suppress_st_warning=True)
+def file_selector(cols, path='./datasets'):
     '''
     Selects a file present in the path folder.
 
@@ -31,8 +31,28 @@ def file_selector(path='./datasets'):
 
     '''
     filenames = os.listdir(path)
-    selected_file = st.selectbox("Select a file", filenames)
+    selected_file = cols[1].selectbox("Select a file", filenames)
     return os.path.join(path, selected_file)
+
+def sidebar():
+    st.sidebar.header("About App")
+    st.sidebar.success("A simple app to perform generic data analysis functions on datasets.")
+    st.sidebar.error("Currently the app performs the following functions:")
+    st.sidebar.markdown(" - <font color='blue'>Select a file from pre-defined set of files</font>", unsafe_allow_html=True)
+    st.sidebar.markdown(" - <font color='blue'>Preview the dataset as per number of rows and columns selected</font>", unsafe_allow_html=True)
+    st.sidebar.markdown(" - <font color='blue'>Highlight number of missing values in each column</font>", unsafe_allow_html=True)
+    st.sidebar.markdown(" - <font color='blue'>Display datatypes of each column</font>", unsafe_allow_html=True)
+    st.sidebar.markdown(" - <font color='blue'>Display number of unique values in a column</font>", unsafe_allow_html=True)
+    st.sidebar.markdown(" - <font color='blue'>Display summary of numerical columns of the dataset</font>", unsafe_allow_html=True)
+    
+    st.sidebar.markdown(" - <font color='blue'>Visualise heatmap of correlation matrix</font>", unsafe_allow_html=True)
+    st.sidebar.markdown(" - <font color='blue'>Display pie plot, bar plot, line plot, box plot, histogram, distribution plot</font>", unsafe_allow_html=True)
+    
+    st.sidebar.text("")
+    st.sidebar.text("")
+    st.sidebar.markdown("### Built by Soumya")
+    st.sidebar.markdown("e-mail:<br>banerjeesoumya15@gmail.com", True)
+    st.sidebar.markdown("Github link: [https://github.com/banerjeesoumya15/Data_Analysis_app](https://github.com/banerjeesoumya15/Data_Analysis_app)", True)
 
 def main():
     '''
@@ -45,19 +65,40 @@ def main():
     None.
 
     '''
-    
-    st.header('Data Analysis')
+    # Use the full page instead of a narrow central column
+    st.set_page_config(layout="wide")
+    html_temp = """
+	<div style="background-color:orangered;">
+    <p style="color:white;font-size:50px;padding:10px">Data Analysis app</p></div>
+	"""
+    st.markdown(html_temp, True)
+    #st.header('Data Analysis')
     st.subheader('Using streamlit')
     
+    # create columns
+    cols = st.beta_columns((1,2))
+    
+    # choice
+    choice = cols[0].radio("Choose an option", ['Predefined file', 'Local file'])
+    
     # select file
-    ffile = st.file_uploader("Select a csv file", type='csv')
-    #full_filename = file_selector()
+    if choice=='Local file':
+        ffile = cols[1].file_uploader("Select a csv file", type=['csv','xlsx','xls'])
+        if ffile:
+            ext = ffile.name.split('.')[-1]
+    else:
+        ffile = file_selector(cols)
+        ext = ffile.split('.')[-1]
     #st.success("You selected \{}".format(full_filename[2:]))
     #st.markdown("> You selected \{}".format(full_filename[2:]))
     
     # Read data
     if ffile:
-        df = pd.read_csv(ffile)
+        #st.text(ffile.name)
+        if ext.lower()=='csv':
+            df = pd.read_csv(ffile)
+        else:
+            df = pd.read_excel(ffile)
         
         # get list of columns
         columns = list(df.columns)
@@ -103,34 +144,39 @@ def main():
         st.markdown("----------")
         # Visualisation
         st.subheader("Visualisation")
+        
+        vis1 = st.beta_columns(2)
         # Correlation plot
-        with st.beta_expander("Correlation - heatmap"):
+        with vis1[0].beta_expander("Correlation - heatmap"):
             selected_columns = st.multiselect("Columns to be displayed", columns, default=columns[:3])
-            fig, ax = plt.subplots()
-            sns.heatmap(df[selected_columns].corr(), annot=True)
-            st.pyplot(fig)
+            if st.button("Plot", key='corr'):
+                fig, ax = plt.subplots()
+                sns.heatmap(df[selected_columns].corr(), annot=True)
+                st.pyplot(fig)
             
         # Generate pie plot
-        with st.beta_expander("Pie plot"):
+        with vis1[1].beta_expander("Pie plot"):
             column = st.selectbox("Select a column", columns, key="Pie plot")
-            fig, ax = plt.subplots()
-            df.loc[:,column].value_counts().plot.pie(autopct="%1.1f%%")
-            st.pyplot(fig)
-            
+            if st.button("Plot", key='pie'):
+                fig, ax = plt.subplots()
+                df.loc[:,column].value_counts().plot.pie(autopct="%1.1f%%")
+                st.pyplot(fig)
+        
+        vis2 = st.beta_columns(2)
         # Generate count plot
-        with st.beta_expander("Count plot"):
+        with vis2[0].beta_expander("Count plot"):
             group_by_column = st.selectbox("Select a column to group by", columns)
             selected_columns = st.multiselect("Columns to be displayed", columns, default=columns[0])
-            if st.button("Plot"):
+            if st.button("Plot", key='count'):
                 count_plot = df.groupby(group_by_column)[selected_columns].count()
                 st.dataframe(count_plot)
                 st.bar_chart(count_plot)
                 
-        with st.beta_expander("Customisable plots"):
+        with vis2[1].beta_expander("Customisable plots"):
             type_of_plot = st.selectbox("Select type of plot", ['area','bar','line','hist','box','kde'])
             selected_columns = st.selectbox("Column to be displayed", columns, key='custom plot')
             
-            if st.button("Generate plot"):
+            if st.button("Plot", key='custom'):
                 
                 if type_of_plot == 'area':
                     st.area_chart(df[selected_columns])
@@ -150,24 +196,7 @@ def main():
     if st.button("Thanks"):
         st.balloons()
         
-    st.sidebar.header("About App")
-    st.sidebar.success("A simple app to perform generic data analysis functions on datasets.")
-    st.sidebar.error("Currently the app performs the following functions:")
-    st.sidebar.markdown(" - <font color='blue'>Select a file from pre-defined set of files</font>", unsafe_allow_html=True)
-    st.sidebar.markdown(" - <font color='blue'>Preview the dataset as per number of rows and columns selected</font>", unsafe_allow_html=True)
-    st.sidebar.markdown(" - <font color='blue'>Highlight number of missing values in each column</font>", unsafe_allow_html=True)
-    st.sidebar.markdown(" - <font color='blue'>Display datatypes of each column</font>", unsafe_allow_html=True)
-    st.sidebar.markdown(" - <font color='blue'>Display number of unique values in a column</font>", unsafe_allow_html=True)
-    st.sidebar.markdown(" - <font color='blue'>Display summary of numerical columns of the dataset</font>", unsafe_allow_html=True)
-    
-    st.sidebar.markdown(" - <font color='blue'>Visualise heatmap of correlation matrix</font>", unsafe_allow_html=True)
-    st.sidebar.markdown(" - <font color='blue'>Display pie plot, bar plot, line plot, box plot, histogram, distribution plot</font>", unsafe_allow_html=True)
-    
-    st.sidebar.text("")
-    st.sidebar.text("")
-    st.sidebar.markdown("### Built by Soumya")
-    st.sidebar.markdown("e-mail:<br>banerjeesoumya15@gmail.com", True)
-    st.sidebar.markdown("Github link: [https://github.com/banerjeesoumya15/Data_Analysis_app](https://github.com/banerjeesoumya15/Data_Analysis_app)", True)
+    sidebar()
         
 
 if __name__=='__main__':
