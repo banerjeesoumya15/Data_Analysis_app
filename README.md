@@ -116,6 +116,6 @@ Project Link: [Data Analysis app][https://github.com/banerjeesoumya15/Data_Analy
 [heroku-url]: https://heroku.com/
 [python-shield]: https://img.shields.io/badge/Python-3.6-green?style=plastic&logo=python&logoColor=3776AB&colorA=yellow
 [python-url]: https://www.python.org/
-[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
+[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-0A66C2.svg?style=plastic&logo=linkedin
 [linkedin-url]: https://www.linkedin.com/in/soumya-shankar-banerjee/
 [product-screenshot]: images/product_screenshot.jpg
