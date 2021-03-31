@@ -94,7 +94,7 @@ See the [open issues](https://github.com/banerjeesoumya15/Data_Analysis_app/issu
 
 Your Name - [Soumya Shankar Banerjee][linkedin-url] - banerjeesoumya15@gmail.com
 
-Project Link: [Data Analysis app][https://github.com/banerjeesoumya15/Data_Analysis_app]
+Project Link: [Data Analysis app](https://github.com/banerjeesoumya15/Data_Analysis_app)
 
 
 
