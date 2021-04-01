@@ -32,7 +32,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Simple EDA App][images/product_screenshot.JPG]][app_launch-url]
+[![Simple EDA App][./images/product_screenshot.JPG]][app_launch-url]
 
 This is a simple web application which can perform some of the basic Exploratory Data Analysis on any csv or excel files. Following are the funcionalities of the app:
 * Chosse a local file (csv or excel), or choose a predefined file to begin the analysis
